@@ -1,0 +1,98 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam monochrome true
+
+abstract class User {
+  - String username
+  - String password
+  + User(String username, String password)
+  + boolean login(String username, String password)
+  + abstract void displayMenu()
+}
+
+class Admin extends User {
+  + Admin(String username, String password)
+  + void displayMenu()
+  + void generateReport()
+}
+
+class Customer extends User {
+  - List<Rental> rentals
+  + Customer(String username, String password)
+  + void displayMenu()
+  + void addRental(Rental rental)
+  + List<Rental> getRentals()
+}
+
+interface Reviewable {
+  + void addReview(String review, int rating)
+  + double getAverageRating()
+  + List<String> getReviews()
+}
+
+interface Reportable {
+  + String generatePerformanceReport()
+}
+
+class Vehicle implements Reviewable {
+  - String make
+  - String model
+  - int year
+  - double pricePerDay
+  - double fuelEfficiency
+  - boolean available
+  - List<String> reviews
+  - List<Integer> ratings
+  + Vehicle(String make, String model, int year, double pricePerDay, double fuelEfficiency)
+  + void addReview(String review, int rating)
+  + double getAverageRating()
+  + List<String> getReviews()
+  + boolean isAvailable()
+  + void setAvailable(boolean available)
+  + String toString()
+}
+
+class LuxuryVehicle extends Vehicle {
+  - String premiumFeatures
+  + LuxuryVehicle(String make, String model, int year, double pricePerDay, double fuelEfficiency, String premiumFeatures)
+  + String toString()
+}
+
+class EconomyVehicle extends Vehicle {
+  - String ecoRating
+  + EconomyVehicle(String make, String model, int year, double pricePerDay, double fuelEfficiency, String ecoRating)
+  + String toString()
+}
+
+class RentalCompany {
+  - List<Vehicle> vehicles
+  + RentalCompany()
+  + void addVehicle(Vehicle vehicle)
+  + List<Vehicle> searchVehicles(String query, String type, int minYear, int maxYear, double minRating)
+  + Vehicle findAvailableVehicle(String model)
+}
+
+class Rental {
+  - Customer customer
+  - Vehicle vehicle
+  - Date rentalDate
+  - Date returnDate
+  + Rental(Customer customer, Vehicle vehicle, Date rentalDate, Date returnDate)
+  + boolean isOverdue()
+  + void returnVehicle()
+}
+
+Admin ..|> Reportable
+Vehicle ..|> Reviewable
+LuxuryVehicle --|> Vehicle
+EconomyVehicle --|> Vehicle
+Admin --|> User
+Customer --|> User
+RentalCompany "1" *-- "many" Vehicle : aggregates
+Customer "1" *-- "many" Rental : has
+Rental "1" -- "1" Vehicle : links to
+Rental "1" -- "1" Customer : links to
+
+note top of RentalCompany : Use arrays or lists for vehicles storage
+note bottom of Rental : Handle exceptions for overdue or unavailable vehicles
+@enduml
